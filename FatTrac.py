@@ -11,7 +11,7 @@ root.title('FatTrac Weight Tracker Pro')
 root.geometry("500x600")
 
 # Variables, lists, dictionaries.   
-img = Image.open("Y:/Jeromy/PythonProjects/FatTrack/images/fatman150.png")
+img = Image.open("Y:/Jeromy/PythonProjects/FatTrack/weightloss_tracker/images/fatman150.png")
 image = ImageTk.PhotoImage(img)
 
 def update():
@@ -27,7 +27,7 @@ def update():
     updates = new_dl, new_current, new_goal
     Weights.append(new_current)
 
-    with open('Y:\Jeromy\PythonProjects\FatTrack\data\weights.csv', 'a') as f:
+    with open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.csv', 'a') as f:
         writer = csv.writer(f)
         #writer.writerow(updates)
 
@@ -50,7 +50,7 @@ dl = d.strftime("%x")
 
 # Open csv and create lists and variables.
 colnames = ['date', 'weight', 'goal']
-data = pandas.read_csv('Y:\Jeromy\PythonProjects\FatTrack\data\weights.csv', names=colnames)
+data = pandas.read_csv('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.csv', names=colnames)
 dates = data.date.tolist()
 Weigh = data.weight.tolist()
 gl = data.goal.tolist()
