@@ -3,8 +3,6 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 import datetime
-import pandas
-import csv
 
 root = Tk()
 root.title('FatTrac Weight Tracker Pro')
@@ -23,18 +21,25 @@ def update():
     new_current = int(new_current)
     new_goal = e2.get()
 
-    #print(new_dl, new_current, new_goal)
-    updates = new_dl, new_current, new_goal
     Weights.append(new_current)
+    with open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.txt', 'w') as wts:
+        for item in Weights: 
+            wts.write("%s\n" % item)
 
-    with open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.csv', 'a') as f:
-        writer = csv.writer(f)
-        #writer.writerow(updates)
+    dates.append(new_dl)
+    with open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\dates.txt', 'w') as dts:
+        for item in dates: 
+            dts.write("%s\n" % item)
+
+    goals.append(new_goal)
+    with open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\goals.txt', 'w') as gts:
+        for item in goals: 
+            gts.write("%s\n" % item)
 
     # Insert graph
     fig = Figure(figsize = (5, 3), dpi = 100)
     y = Weights
-    x = dates
+    #x = dates
     plot1 = fig.add_subplot(111)
     plot1.plot(y)
     
@@ -49,15 +54,29 @@ d = dn.date()
 dl = d.strftime("%x")
 
 # Open csv and create lists and variables.
-colnames = ['date', 'weight', 'goal']
-data = pandas.read_csv('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.csv', names=colnames)
-dates = data.date.tolist()
-Weigh = data.weight.tolist()
-gl = data.goal.tolist()
-Weigh.pop(0)
-Weights = [eval(i) for i in Weigh]
-gl.pop(0)
-goal = gl[0]
+goals = []
+gl = open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\goals.txt', 'r')
+gls = gl.readlines()
+for g in gls:
+    goals.append(g.replace("\n", ""))
+gl.close()
+goals = [eval(i) for i in goals]
+goal = goals[-1]
+
+dates = []
+dt = open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\dates.txt', 'r')
+dts = dt.readlines()
+for d in dts:
+    dates.append(d.replace("\n", ""))
+dt.close()
+
+Weights = []
+Weigh = open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.txt', 'r')
+Wt = Weigh.readlines()
+for w in Wt:
+    Weights.append(w.replace("\n", ""))
+Weigh.close()
+Weights = [eval(i) for i in Weights]
 current = Weights[-1]
 
 # Calculate avg amount lost per day and extrapolate number of days to reach goal.
@@ -66,7 +85,7 @@ dtg = 1011
 # Insert graph
 fig = Figure(figsize = (5, 3), dpi = 100)
 y = Weights
-x = dates
+#x = dates
 plot1 = fig.add_subplot(111)
 plot1.plot(y)
 
