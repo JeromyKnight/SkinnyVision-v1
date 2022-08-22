@@ -8,22 +8,21 @@ root = Tk()
 root.title('FatTrac Weight Tracker Pro')
 root.geometry("500x600")
 
-# Variables, lists, dictionaries.   
 img = Image.open("Y:/Jeromy/PythonProjects/FatTrack/weightloss_tracker/images/fatman150.png")
 image = ImageTk.PhotoImage(img)
 
 def update():
     """
-    Write new values to csv
+    Write new values to file and re-draw graph.
     """
     new_dl = e.get()
     new_current = e1.get()
     new_current = int(new_current)
     new_goal = e2.get()
 
-    Weights.append(new_current)
+    weights.append(new_current)
     with open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.txt', 'w') as wts:
-        for item in Weights: 
+        for item in weights: 
             wts.write("%s\n" % item)
 
     dates.append(new_dl)
@@ -36,10 +35,45 @@ def update():
         for item in goals: 
             gts.write("%s\n" % item)
 
+    # Re-calculate avg amount lost per day and extrapolate number of days to reach goal.
+    d = dates[0]
+    d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
+    dn = datetime.datetime.now()
+    da = dn.date()
+    delta = da - d1
+    days = delta.days
+    print(days)
+
+    cl = weights[0] - weights[-1]
+    daily = cl / days
+
+    tg = current - int(new_goal)
+    dtg = tg / daily
+    dtg = int(dtg)
+
+    # Display current goal weight or null value if not set.
+    myLabel = Label(root, text=f"Goal Weight")
+    myLabel.grid(row=1, column=3, padx=5, pady=0)
+    myLabel5 = Label(root, text=f"{new_goal}", font="bold")
+    myLabel5.grid(row=2, column=3, padx=5, pady=5)
+
+    # Refresh projected time to reach goal as number of days.
+    myLabel1 = Label(root, text=f"Days to reach goal")
+    myLabel1.grid(row=3, column=3, padx=5, pady=0)
+    myLabel6 = Label(root, text=f"{dtg}", font="bold")
+    myLabel6.grid(row=4, column=3, padx=5, pady=5)
+
     # Insert graph
     fig = Figure(figsize = (5, 3), dpi = 100)
-    y = Weights
-    #x = dates
+    y = weights
+    x = dates
+    plot1 = fig.add_subplot(111)
+    plot1.plot(y)
+
+    # Insert graph
+    fig = Figure(figsize = (5, 3), dpi = 100)
+    y = weights
+    x = dates
     plot1 = fig.add_subplot(111)
     plot1.plot(y)
     
@@ -53,7 +87,7 @@ dn = datetime.datetime.now()
 d = dn.date()
 dl = d.strftime("%x")
 
-# Open csv and create lists and variables.
+# Open txt files and create lists and variables.
 goals = []
 gl = open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\goals.txt', 'r')
 gls = gl.readlines()
@@ -70,22 +104,35 @@ for d in dts:
     dates.append(d.replace("\n", ""))
 dt.close()
 
-Weights = []
-Weigh = open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.txt', 'r')
-Wt = Weigh.readlines()
-for w in Wt:
-    Weights.append(w.replace("\n", ""))
-Weigh.close()
-Weights = [eval(i) for i in Weights]
-current = Weights[-1]
+weights = []
+weigh = open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.txt', 'r')
+wt = weigh.readlines()
+for w in wt:
+    weights.append(w.replace("\n", ""))
+weigh.close()
+weights = [eval(i) for i in weights]
+current = weights[-1]
 
 # Calculate avg amount lost per day and extrapolate number of days to reach goal.
-dtg = 1011
+d = dates[0]
+d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
+dn = datetime.datetime.now()
+da = dn.date()
+delta = da - d1
+days = delta.days
+print(days)
+
+cl = weights[0] - weights[-1]
+daily = cl / days
+
+tg = current - goal
+dtg = tg / daily
+dtg = int(dtg)
 
 # Insert graph
 fig = Figure(figsize = (5, 3), dpi = 100)
-y = Weights
-#x = dates
+y = weights
+x = dates
 plot1 = fig.add_subplot(111)
 plot1.plot(y)
 
@@ -132,8 +179,6 @@ e2.insert(0,f"{goal}")
 # Insert fatman image - show skinnier images as progress is made towards goal.
 myImage = Label(image=image)
 myImage.grid(row=1, rowspan=4, column=2,)
-
-# Insert a quote of my biggest reason for wanting to lose weight.
 
 # Save and refresh display
 myButton = Button(root, text='Submit', padx=20, bg="light gray", command=update)
