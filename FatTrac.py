@@ -42,11 +42,9 @@ def update():
     da = dn.date()
     delta = da - d1
     days = delta.days
-    print(days)
 
     cl = weights[0] - weights[-1]
     daily = cl / days
-
     tg = current - int(new_goal)
     dtg = tg / daily
     dtg = int(dtg)
@@ -62,13 +60,6 @@ def update():
     myLabel1.grid(row=3, column=3, padx=5, pady=0)
     myLabel6 = Label(root, text=f"{dtg}", font="bold")
     myLabel6.grid(row=4, column=3, padx=5, pady=5)
-
-    # Insert graph
-    fig = Figure(figsize = (5, 3), dpi = 100)
-    y = weights
-    x = dates
-    plot1 = fig.add_subplot(111)
-    plot1.plot(y)
 
     # Insert graph
     fig = Figure(figsize = (5, 3), dpi = 100)
@@ -113,18 +104,17 @@ weigh.close()
 weights = [eval(i) for i in weights]
 current = weights[-1]
 
-# Calculate avg amount lost per day and extrapolate number of days to reach goal.
+# Calculate avg amount lost.
 d = dates[0]
 d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
 dn = datetime.datetime.now()
 da = dn.date()
 delta = da - d1
 days = delta.days
-print(days)
 
+# Calculate the number of days to reach goal.
 cl = weights[0] - weights[-1]
 daily = cl / days
-
 tg = current - goal
 dtg = tg / daily
 dtg = int(dtg)
