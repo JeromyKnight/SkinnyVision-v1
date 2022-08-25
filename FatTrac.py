@@ -9,7 +9,7 @@ root = Tk()
 root.title('FatTrac Weight Tracker 5000 Pro')
 root.geometry("500x720")
 
-img = Image.open("Y:/Jeromy/PythonProjects/FatTrack/weightloss_tracker/images/fatman150.png")
+img = Image.open("C:\Program Files\FatTrac/images/fatman150.png")
 image = ImageTk.PhotoImage(img)
 
 def update():
@@ -24,17 +24,17 @@ def update():
 
     # Open data files and append with new inputs.
     weights.append(new_current)
-    with open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.txt', 'w') as wts:
+    with open('C:\Program Files\FatTrac\data\weights.txt', 'w') as wts:
         for item in weights: 
             wts.write("%s\n" % item)
 
     dates.append(new_dl)
-    with open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\dates.txt', 'w') as dts:
+    with open('C:\Program Files\FatTrac\data\dates.txt', 'w') as dts:
         for item in dates: 
             dts.write("%s\n" % item)
 
     goals.append(new_goal)
-    with open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\goals.txt', 'w') as gts:
+    with open('C:\Program Files\FatTrac\data\goals.txt', 'w') as gts:
         for item in goals: 
             gts.write("%s\n" % item)
     
@@ -102,7 +102,7 @@ dl = d.strftime("%x")
 
 # Open txt files and create lists and variables.
 goals = []
-gl = open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\goals.txt', 'r')
+gl = open('C:\Program Files\FatTrac\data\goals.txt', 'r')
 gls = gl.readlines()
 for g in gls:
     goals.append(g.replace("\n", ""))
@@ -113,14 +113,14 @@ try:
 except IndexError:
     print('Index error')
 dates = []
-dt = open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\dates.txt', 'r')
+dt = open('C:\Program Files\FatTrac\data\dates.txt', 'r')
 dts = dt.readlines()
 for d in dts:
     dates.append(d.replace("\n", ""))
 dt.close()
 
 weights = []
-weigh = open('Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data\weights.txt', 'r')
+weigh = open('C:\Program Files\FatTrac\data\weights.txt', 'r')
 wt = weigh.readlines()
 for w in wt:
     weights.append(w.replace("\n", ""))
