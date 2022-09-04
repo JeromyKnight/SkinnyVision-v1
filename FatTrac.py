@@ -1,7 +1,6 @@
 from tkinter import *
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
 from PIL import ImageTk, Image
 import datetime
 
@@ -9,8 +8,36 @@ root = Tk()
 root.title('FatTrac Weight Tracker 5000 Pro')
 root.geometry("500x720")
 
-img = Image.open("C:\Program Files\FatTrac/images/fatman150.png")
-image = ImageTk.PhotoImage(img)
+# Open image file and create list.
+images = []
+imgs = open("C:\Program Files\FatTrac\data\images.txt", 'r')
+im = imgs.readlines()
+
+for i in im:
+    images.append(i.replace("\n", ""))
+imgs.close()
+
+def i_mage(xps):
+    """
+    Change picture based upon progress.
+    """
+    img = images[0]
+        
+    if xps >= 20:
+        img = images[1]
+    if xps >= 40:
+        img = images[2]
+    if xps >= 60:
+        img = images[3]
+    if xps >= 80:
+        img = images[4]
+    if xps == 100:
+        img = images[5]
+
+    mimage = ImageTk.PhotoImage(Image.open(img))
+    myImage = Label(root, image=mimage)
+    myImage.photo = mimage
+    myImage.grid(row=1, rowspan=4, column=2)
 
 def update():
     """
@@ -55,6 +82,7 @@ def update():
         dtg = int(dtg)
     except ZeroDivisionError:
         dtg = 'Null'
+
     # Display current goal weight or null value if not set.
     myLabel8 = Label(root, text=f"Goal Weight", font=("Arial", 11))
     myLabel8.grid(row=1, column=3, padx=5, pady=0)
@@ -74,14 +102,16 @@ def update():
     myLabel12 = Label(root, text=f"{dail} average pounds lost per day over the last {days} days.", font=("Arial", 12))
     myLabel12.grid(row=7, columnspan=4, pady=10)
 
-    # Display percentage of weight lost towards goal so far.
     progress = weights[0] - int(new_goal)
     xp = cl / progress
     xps = xp * 100
     xps = int(xps)
 
-    myLabel12 = Label(root, text=f"    You are {xps}% towards your goal!    ", font=("Arial", 14))
-    myLabel12.grid(row=5, columnspan=4, pady=25)
+    myLabel13 = Label(root, text=f"    You are {xps}% towards your goal!    ", font=("Arial", 14))
+    myLabel13.grid(row=5, columnspan=4, pady=25)
+
+    # Call img function
+    i_mage(xps)
 
     # Re-draw graph.
     fig = Figure(figsize = (5, 3), dpi = 100)
@@ -112,6 +142,7 @@ try:
     goal = goals[-1]
 except IndexError:
     print('Index error')
+
 dates = []
 dt = open('C:\Program Files\FatTrac\data\dates.txt', 'r')
 dts = dt.readlines()
@@ -150,6 +181,14 @@ except IndexError:
 except ZeroDivisionError:
     print('ZeroDivisionError')
 
+progress = weights[0] - int(goal)
+xp = cl / progress
+xps = xp * 100
+xps = int(xps)
+
+# Call img function
+i_mage(xps)
+
 # Insert graph.
 fig = Figure(figsize = (5, 3), dpi = 100)
 y = weights
@@ -175,6 +214,7 @@ try:
 except NameError:
     myLabel2 = Label(root, text=f"Null", font="bold")
     myLabel2.grid(row=2, column=3, padx=5, pady=5)
+
 # Display projected time to reach goal as number of days.
 myLabel3 = Label(root, text=f"Days to reach goal", font=("Arial", 11))
 myLabel3.grid(row=3, column=3, padx=5, pady=0)
@@ -209,10 +249,6 @@ try:
 except NameError:
     print('NameError')
 
-# Insert fatman image - show skinnier images as progress is made towards goal.
-myImage = Label(image=image)
-myImage.grid(row=1, rowspan=4, column=2)
-
 # Save and refresh display.
 myButton = Button(root, text='Submit', padx=10, bg="light gray", command=update)
 myButton.grid(row=4, column=1, padx=5, pady=5)
@@ -235,6 +271,7 @@ try:
 except IndexError:
     myLabel13 = Label(root, text=f"You are Null% towards your goal!", font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
+
 myLabel14 = Label(root, text="Copyright 2022 Jeromy Knight", font=("Arial", 8))
 myLabel14.grid(row=8, columnspan=4, pady=10)
 
