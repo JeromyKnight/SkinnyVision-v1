@@ -8,9 +8,11 @@ root = Tk()
 root.title('FatTrac Weight Tracker 5000 Pro')
 root.geometry("500x720")
 
+path = "C:\Program Files\FatTrac\data/"
+
 # Open image file and create list.
 images = []
-imgs = open("C:\Program Files\FatTrac\data\images.txt", 'r')
+imgs = open(f'{path}images.txt', 'r')
 im = imgs.readlines()
 
 for i in im:
@@ -39,6 +41,43 @@ def i_mage(xps):
     myImage.photo = mimage
     myImage.grid(row=1, rowspan=4, column=2)
 
+def draw_graph():
+    # Re-draw graph.
+    fig = Figure(figsize = (5, 3), dpi = 100)
+    y = weights
+    x = dates
+    plot1 = fig.add_subplot(111)
+    plot1.plot(y)
+    
+    # Create the Tkinter canvas.
+    canvas = FigureCanvasTkAgg(fig, master = root)
+    canvas.draw()
+    canvas.get_tk_widget().grid(row=6, columnspan=4)   
+
+def daystogoal():
+        # Calculate avg amount lost.
+    try:
+        d = dates[0]
+        d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
+        dn = datetime.datetime.now()
+        da = dn.date()
+        delta = da - d1
+        global days
+        days = delta.days
+
+        global cl
+        cl = weights[0] - weights[-1]
+        global daily
+        daily = cl / days
+        tg = current - goal
+        dtg = tg / daily
+        dtg = int(dtg)
+    except IndexError:
+        print('Index Error')
+    except ZeroDivisionError:
+        print('ZeroDivisionError')
+    return(dtg)
+
 def update():
     """
     Write new values to file and re-draw graph.
@@ -51,37 +90,21 @@ def update():
 
     # Open data files and append with new inputs.
     weights.append(new_current)
-    with open('C:\Program Files\FatTrac\data\weights.txt', 'w') as wts:
+    with open(f'{path}weights.txt', 'w') as wts:
         for item in weights: 
             wts.write("%s\n" % item)
 
     dates.append(new_dl)
-    with open('C:\Program Files\FatTrac\data\dates.txt', 'w') as dts:
+    with open(f'{path}dates.txt', 'w') as dts:
         for item in dates: 
             dts.write("%s\n" % item)
 
     goals.append(new_goal)
-    with open('C:\Program Files\FatTrac\data\goals.txt', 'w') as gts:
+    with open(f'{path}goals.txt', 'w') as gts:
         for item in goals: 
             gts.write("%s\n" % item)
     
-    # Re-calculate avg amount lost per day.
-    try:
-        d = dates[0]
-        d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
-        dn = datetime.datetime.now()
-        da = dn.date()
-        delta = da - d1
-        days = delta.days
-        cl = weights[0] - weights[-1]
-        daily = cl / days
-
-        # Remaining weight to lose divided by the avg amount loss so far.
-        tg = new_current - int(new_goal)
-        dtg = tg / daily
-        dtg = int(dtg)
-    except ZeroDivisionError:
-        dtg = 'Null'
+    dtg = daystogoal()
 
     # Display current goal weight or null value if not set.
     myLabel8 = Label(root, text=f"Goal Weight", font=("Arial", 11))
@@ -110,20 +133,11 @@ def update():
     myLabel13 = Label(root, text=f"    You are {xps}% towards your goal!    ", font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
 
-    # Call img function
+    # Call img function.
     i_mage(xps)
 
-    # Re-draw graph.
-    fig = Figure(figsize = (5, 3), dpi = 100)
-    y = weights
-    x = dates
-    plot1 = fig.add_subplot(111)
-    plot1.plot(y)
-    
-    # Create the Tkinter canvas.
-    canvas = FigureCanvasTkAgg(fig, master = root)
-    canvas.draw()
-    canvas.get_tk_widget().grid(row=6, columnspan=4)   
+    # Call draw graph function.
+    draw_graph()
 
 # Get current date.
 dn = datetime.datetime.now()
@@ -132,7 +146,7 @@ dl = d.strftime("%x")
 
 # Open txt files and create lists and variables.
 goals = []
-gl = open('C:\Program Files\FatTrac\data\goals.txt', 'r')
+gl = open(f'{path}goals.txt', 'r')
 gls = gl.readlines()
 for g in gls:
     goals.append(g.replace("\n", ""))
@@ -144,14 +158,14 @@ except IndexError:
     print('Index error')
 
 dates = []
-dt = open('C:\Program Files\FatTrac\data\dates.txt', 'r')
+dt = open(f'{path}dates.txt', 'r')
 dts = dt.readlines()
 for d in dts:
     dates.append(d.replace("\n", ""))
 dt.close()
 
 weights = []
-weigh = open('C:\Program Files\FatTrac\data\weights.txt', 'r')
+weigh = open(f'{path}weights.txt', 'r')
 wt = weigh.readlines()
 for w in wt:
     weights.append(w.replace("\n", ""))
@@ -162,24 +176,7 @@ try:
 except IndexError:
     print('Index Error')
 
-# Calculate avg amount lost.
-try:
-    d = dates[0]
-    d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
-    dn = datetime.datetime.now()
-    da = dn.date()
-    delta = da - d1
-    days = delta.days
-
-    cl = weights[0] - weights[-1]
-    daily = cl / days
-    tg = current - goal
-    dtg = tg / daily
-    dtg = int(dtg)
-except IndexError:
-    print('Index Error')
-except ZeroDivisionError:
-    print('ZeroDivisionError')
+dtg = daystogoal()
 
 progress = weights[0] - int(goal)
 xp = cl / progress
@@ -189,17 +186,8 @@ xps = int(xps)
 # Call img function
 i_mage(xps)
 
-# Insert graph.
-fig = Figure(figsize = (5, 3), dpi = 100)
-y = weights
-x = dates
-plot1 = fig.add_subplot(111)
-plot1.plot(y)
-
-# Creat the Tkinter canvas.
-canvas = FigureCanvasTkAgg(fig, master = root)
-canvas.draw()
-canvas.get_tk_widget().grid(row=6, columnspan=4)
+# Call draw graph function.
+draw_graph()
 
 # Display title header.
 myLabel = Label(root, text="FatTrac Weight Tracker 5000 Pro", fg="dark blue", borderwidth=2, pady=10, font=("Arial", 20))
@@ -255,6 +243,7 @@ myButton.grid(row=4, column=1, padx=5, pady=5)
 
 try:
     dail = "{:.2f}".format(daily)
+    print(dail)
     myLabel12 = Label(root, text=f"{dail} average pounds lost per day over the last {days} days.", font=("Arial", 12))
 except NameError:
     myLabel12 = Label(root, text=f"Null average pounds lost per day over the last Null days.", font=("Arial", 12))
