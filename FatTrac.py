@@ -4,11 +4,14 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 import datetime
 
-root = Tk()
-root.title('FatTrac Weight Tracker 5000 Pro')
-root.geometry("500x720")
+ver = 'v1.3'
+appName = f'FatTrac Weight Tracker 5000 Pro {ver}'
 
 path = "C:\Program Files\FatTrac\data/"
+
+root = Tk()
+root.title(appName)
+root.geometry("500x720")
 
 # Open image file and create list.
 images = []
@@ -54,22 +57,14 @@ def draw_graph():
     canvas.draw()
     canvas.get_tk_widget().grid(row=6, columnspan=4)   
 
-def daystogoal():
+def daystogoal(goal):
         # Calculate avg amount lost.
     try:
-        d = dates[0]
-        d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
-        dn = datetime.datetime.now()
-        da = dn.date()
-        delta = da - d1
-        global days
-        days = delta.days
-
         global cl
         cl = weights[0] - weights[-1]
         global daily
         daily = cl / days
-        tg = current - goal
+        tg = current - float(goal)
         dtg = tg / daily
         dtg = int(dtg)
     except IndexError:
@@ -103,8 +98,9 @@ def update():
     with open(f'{path}goals.txt', 'w') as gts:
         for item in goals: 
             gts.write("%s\n" % item)
+    goal = goals[-1]
     
-    dtg = daystogoal()
+    dtg = daystogoal(goal)
 
     # Display current goal weight or null value if not set.
     myLabel8 = Label(root, text=f"Goal Weight", font=("Arial", 11))
@@ -176,21 +172,30 @@ try:
 except IndexError:
     print('Index Error')
 
-dtg = daystogoal()
+d = dates[0]
+d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
+dn = datetime.datetime.now()
+da = dn.date()
+delta = da - d1
+days = delta.days
 
+cl = weights[0] - weights[-1]
 progress = weights[0] - int(goal)
 xp = cl / progress
 xps = xp * 100
 xps = int(xps)
 
-# Call img function
+# Calculate days to goal.
+dtg = daystogoal(goal)
+
+# Call image function.
 i_mage(xps)
 
 # Call draw graph function.
 draw_graph()
 
 # Display title header.
-myLabel = Label(root, text="FatTrac Weight Tracker 5000 Pro", fg="dark blue", borderwidth=2, pady=10, font=("Arial", 20))
+myLabel = Label(root, text=appName, fg="dark blue", borderwidth=2, pady=10, font=("Arial", 20))
 myLabel.grid(row=0, columnspan=4, padx=5, pady=20)
 
 # Display current goal weight or null value if not set.
@@ -243,7 +248,6 @@ myButton.grid(row=4, column=1, padx=5, pady=5)
 
 try:
     dail = "{:.2f}".format(daily)
-    print(dail)
     myLabel12 = Label(root, text=f"{dail} average pounds lost per day over the last {days} days.", font=("Arial", 12))
 except NameError:
     myLabel12 = Label(root, text=f"Null average pounds lost per day over the last Null days.", font=("Arial", 12))
