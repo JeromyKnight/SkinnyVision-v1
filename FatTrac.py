@@ -19,7 +19,7 @@ def update():
     # Get new variables from inputs.
     new_dl = e.get()
     new_current = e1.get()
-    new_current = int(new_current)
+    new_current = float(new_current)
     new_goal = e2.get()
 
     # Open data files and append with new inputs.
