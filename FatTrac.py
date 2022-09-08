@@ -4,13 +4,17 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 import datetime
 
-ver = 'v1.3'
-appName = f'FatTrac Weight Tracker 5000 Pro {ver}'
+ver = 'v1.4'
+appName = 'FatTrac Weight Tracker 5000 Pro'
+
+appTitle = f'{appName} {ver}'
 
 path = "C:\Program Files\FatTrac\data/"
+#path = "Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data/"
+copyright = u"\u00A9"
 
 root = Tk()
-root.title(appName)
+root.title(appTitle)
 root.geometry("500x720")
 
 # Open image file and create list.
@@ -45,7 +49,9 @@ def i_mage(xps):
     myImage.grid(row=1, rowspan=4, column=2)
 
 def draw_graph():
-    # Re-draw graph.
+    """
+    Re-draw graph.
+    """
     fig = Figure(figsize = (5, 3), dpi = 100)
     y = weights
     x = dates
@@ -56,22 +62,6 @@ def draw_graph():
     canvas = FigureCanvasTkAgg(fig, master = root)
     canvas.draw()
     canvas.get_tk_widget().grid(row=6, columnspan=4)   
-
-def daystogoal(goal):
-        # Calculate avg amount lost.
-    try:
-        global cl
-        cl = weights[0] - weights[-1]
-        global daily
-        daily = cl / days
-        tg = current - float(goal)
-        dtg = tg / daily
-        dtg = int(dtg)
-    except IndexError:
-        print('Index Error')
-    except ZeroDivisionError:
-        print('ZeroDivisionError')
-    return(dtg)
 
 def update():
     """
@@ -98,9 +88,28 @@ def update():
     with open(f'{path}goals.txt', 'w') as gts:
         for item in goals: 
             gts.write("%s\n" % item)
-    goal = goals[-1]
     
-    dtg = daystogoal(goal)
+    goal = new_goal
+
+    try:
+        cl = weights[0] - weights[-1]
+        daily = cl / days
+        tg = current - float(goal)
+        dtg = tg / daily
+        dtg = int(dtg)
+    except IndexError:
+        print('Index Error')
+        dtg = 0
+    except ZeroDivisionError:
+        print('ZeroDivisionError')
+        dtg = 0
+
+    # Re-calculate amount lost per day and percentage towards goal.
+    cl = weights[0] - weights[-1]
+    progress = weights[0] - int(new_goal)
+    xp = cl / progress
+    xps = xp * 100
+    xps = int(xps)
 
     # Display current goal weight or null value if not set.
     myLabel8 = Label(root, text=f"Goal Weight", font=("Arial", 11))
@@ -118,15 +127,13 @@ def update():
         dail = "{:.2f}".format(daily)
     except UnboundLocalError:
         dail = 'Null'
-    myLabel12 = Label(root, text=f"{dail} average pounds lost per day over the last {days} days.", font=("Arial", 12))
+    myLabel12 = Label(root, 
+        text=f"{dail} average pounds lost per day over the last {days} days.", 
+        font=("Arial", 12))
     myLabel12.grid(row=7, columnspan=4, pady=10)
 
-    progress = weights[0] - int(new_goal)
-    xp = cl / progress
-    xps = xp * 100
-    xps = int(xps)
-
-    myLabel13 = Label(root, text=f"    You are {xps}% towards your goal!    ", font=("Arial", 14))
+    myLabel13 = Label(root, text=f"    You are {xps}% towards your goal!    ", 
+        font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
 
     # Call img function.
@@ -151,7 +158,7 @@ try:
     goals = [eval(i) for i in goals]
     goal = goals[-1]
 except IndexError:
-    print('Index error')
+    print('Index error goals')
 
 dates = []
 dt = open(f'{path}dates.txt', 'r')
@@ -170,8 +177,9 @@ weights = [eval(i) for i in weights]
 try:
     current = weights[-1]
 except IndexError:
-    print('Index Error')
+    print('Index Error weights')
 
+# Get starting and current date and calculate total days.
 d = dates[0]
 d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
 dn = datetime.datetime.now()
@@ -179,14 +187,25 @@ da = dn.date()
 delta = da - d1
 days = delta.days
 
+try:
+    cl = weights[0] - weights[-1]
+    daily = cl / days
+    tg = current - float(goal)
+    dtg = tg / daily
+    dtg = int(dtg)
+except IndexError:
+    print('Index Error')
+    dtg = 0
+except ZeroDivisionError:
+    print('ZeroDivisionError')
+    dtg = 0
+
+# Calculate total weight loss, amount lost per day and percentage towards goal.
 cl = weights[0] - weights[-1]
 progress = weights[0] - int(goal)
 xp = cl / progress
 xps = xp * 100
 xps = int(xps)
-
-# Calculate days to goal.
-dtg = daystogoal(goal)
 
 # Call image function.
 i_mage(xps)
@@ -195,7 +214,8 @@ i_mage(xps)
 draw_graph()
 
 # Display title header.
-myLabel = Label(root, text=appName, fg="dark blue", borderwidth=2, pady=10, font=("Arial", 20))
+myLabel = Label(root, text=appName, fg="dark blue", 
+    borderwidth=2, pady=10, font=("Arial", 20))
 myLabel.grid(row=0, columnspan=4, padx=5, pady=20)
 
 # Display current goal weight or null value if not set.
@@ -248,9 +268,13 @@ myButton.grid(row=4, column=1, padx=5, pady=5)
 
 try:
     dail = "{:.2f}".format(daily)
-    myLabel12 = Label(root, text=f"{dail} average pounds lost per day over the last {days} days.", font=("Arial", 12))
+    myLabel12 = Label(root, 
+        text=f"{dail} average pounds lost per day over the last {days} days.", 
+        font=("Arial", 12))
 except NameError:
-    myLabel12 = Label(root, text=f"Null average pounds lost per day over the last Null days.", font=("Arial", 12))
+    myLabel12 = Label(root, 
+    text=f"Null average pounds lost per day over the last Null days.", 
+    font=("Arial", 12))
 myLabel12.grid(row=7, columnspan=4, pady=10)
 
 # Display percentage of weight lost towards goal so far.
@@ -259,13 +283,16 @@ try:
     xp = cl / progress
     xps = xp * 100
     xps = int(xps)
-    myLabel13 = Label(root, text=f"You are {xps}% towards your goal!", font=("Arial", 14))
+    myLabel13 = Label(root, text=f"You are {xps}% towards your goal!", 
+        font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
 except IndexError:
-    myLabel13 = Label(root, text=f"You are Null% towards your goal!", font=("Arial", 14))
+    myLabel13 = Label(root, text=f"You are Null% towards your goal!", 
+        font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
 
-myLabel14 = Label(root, text="Copyright 2022 Jeromy Knight", font=("Arial", 8))
+myLabel14 = Label(root, text=f"Copyright {copyright} 2022 Jeromy Knight", 
+    font=("Arial", 8))
 myLabel14.grid(row=8, columnspan=4, pady=10)
 
 root.mainloop()
