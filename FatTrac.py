@@ -4,7 +4,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 import datetime
 
-ver = 'v1.4'
+ver = 'v1.5'
 appName = 'FatTrac Weight Tracker 5000 Pro'
 
 appTitle = f'{appName} {ver}'
@@ -69,8 +69,7 @@ def update():
     """
     # Get new variables from inputs.
     new_dl = e.get()
-    new_current = e1.get()
-    new_current = float(new_current)
+    new_current = float(e1.get())
     new_goal = e2.get()
 
     # Open data files and append with new inputs.
@@ -92,9 +91,9 @@ def update():
     goal = new_goal
 
     try:
-        cl = weights[0] - weights[-1]
-        daily = cl / days
-        tg = current - float(goal)
+        cl = weights[0] - new_current
+        daily = cl / days 
+        tg = new_current - float(goal)
         dtg = tg / daily
         dtg = int(dtg)
     except IndexError:
@@ -202,7 +201,7 @@ except ZeroDivisionError:
 
 # Calculate total weight loss, amount lost per day and percentage towards goal.
 cl = weights[0] - weights[-1]
-progress = weights[0] - int(goal)
+progress = weights[0] - int(goal) 
 xp = cl / progress
 xps = xp * 100
 xps = int(xps)
