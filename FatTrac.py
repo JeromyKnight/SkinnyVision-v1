@@ -4,13 +4,13 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 import datetime
 
-ver = 'v1.5'
+ver = 'v1.51'
 appName = 'FatTrac Weight Tracker 5000 Pro'
 
 appTitle = f'{appName} {ver}'
 
-path = "C:\Program Files\FatTrac\data/"
-#path = "Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data/"
+#path = "C:\Program Files\FatTrac\data/"
+path = "Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data/"
 copyright = u"\u00A9"
 
 root = Tk()
@@ -87,13 +87,24 @@ def update():
     with open(f'{path}goals.txt', 'w') as gts:
         for item in goals: 
             gts.write("%s\n" % item)
-    
-    goal = new_goal
 
+    # Get starting and new date and calculate total days.
+    try:
+        d = dates[0]
+        d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
+        dc = dates[-1]
+        da = datetime.datetime.strptime(dc, '%m/%d/%y').date() 
+        delta = da - d1
+        days = delta.days
+    except IndexError:
+        days = 0
+
+    # Calculate days to reach goal.
     try:
         cl = weights[0] - new_current
         daily = cl / days 
-        tg = new_current - float(goal)
+        tg = new_current - float(new_goal)
+
         dtg = tg / daily
         dtg = int(dtg)
     except IndexError:
@@ -119,7 +130,7 @@ def update():
     # Refresh projected time to reach goal as number of days.
     myLabel10 = Label(root, text=f"Days to reach goal", font=("Arial", 11))
     myLabel10.grid(row=3, column=3, padx=5, pady=0)
-    myLabel11 = Label(root, text=f"{dtg}", font="bold")
+    myLabel11 = Label(root, text=f"   {dtg}   ", font="bold")
     myLabel11.grid(row=4, column=3, padx=5, pady=5)
 
     try:
@@ -178,14 +189,18 @@ try:
 except IndexError:
     print('Index Error weights')
 
-# Get starting and current date and calculate total days.
-d = dates[0]
-d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
-dn = datetime.datetime.now()
-da = dn.date()
-delta = da - d1
-days = delta.days
+# Get starting and ending dates and calculate total days.
+try:
+    d = dates[0]
+    d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
+    dc = dates[-1]
+    da = datetime.datetime.strptime(dc, '%m/%d/%y').date() 
+    delta = da - d1
+    days = delta.days
+except IndexError:
+    days = 0
 
+# Calculate days to reach goal.
 try:
     cl = weights[0] - weights[-1]
     daily = cl / days
