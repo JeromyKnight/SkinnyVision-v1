@@ -9,13 +9,13 @@ appName = 'FatTrac Weight Tracker 5000 Pro'
 
 appTitle = f'{appName} {ver}'
 
-#path = "C:\Program Files\FatTrac\data/"
-path = "Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data/"
+path = "C:\Program Files\FatTrac\data/"
+#path = "Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data/"
 copyright = u"\u00A9"
 
 root = Tk()
 root.title(appTitle)
-root.geometry("500x720")
+root.geometry("500x750")
 
 # Open image file and create list.
 images = []
@@ -61,7 +61,7 @@ def draw_graph():
     # Create the Tkinter canvas.
     canvas = FigureCanvasTkAgg(fig, master = root)
     canvas.draw()
-    canvas.get_tk_widget().grid(row=6, columnspan=4)   
+    canvas.get_tk_widget().grid(row=7, columnspan=4)   
 
 def update():
     """
@@ -90,8 +90,8 @@ def update():
 
     # Get starting and new date and calculate total days.
     try:
-        d = dates[0]
-        d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
+        du = dates[0]
+        d1 = datetime.datetime.strptime(du, '%m/%d/%y').date() 
         dc = dates[-1]
         da = datetime.datetime.strptime(dc, '%m/%d/%y').date() 
         delta = da - d1
@@ -101,8 +101,8 @@ def update():
 
     # Calculate days to reach goal.
     try:
-        cl = weights[0] - new_current
-        daily = cl / days 
+        clu = weights[0] - new_current
+        daily = clu / days 
         tg = new_current - float(new_goal)
 
         dtg = tg / daily
@@ -120,6 +120,14 @@ def update():
     xp = cl / progress
     xps = xp * 100
     xps = int(xps)
+
+    # Test print variable states.
+    print(f'\n{days}')
+    print(cl)
+    print(tg)
+    print(progress)
+    print(dtg)
+    print(xps)
 
     # Display current goal weight or null value if not set.
     myLabel8 = Label(root, text=f"Goal Weight", font=("Arial", 11))
@@ -146,11 +154,18 @@ def update():
         font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
 
+    print(dail)
+
     # Call img function.
     i_mage(xps)
 
     # Call draw graph function.
     draw_graph()
+
+    last = dates[-1]
+    myLabel15 = Label(root, text=f"Last updated {last}", 
+    font=("Arial", 10))
+    myLabel15.grid(row=6, columnspan=4, pady=5)
 
 # Get current date.
 dn = datetime.datetime.now()
@@ -193,9 +208,9 @@ except IndexError:
 try:
     d = dates[0]
     d1 = datetime.datetime.strptime(d, '%m/%d/%y').date() 
-    dc = dates[-1]
-    da = datetime.datetime.strptime(dc, '%m/%d/%y').date() 
-    delta = da - d1
+    db = dates[-1]
+    dc = datetime.datetime.strptime(db, '%m/%d/%y').date() 
+    delta = dc - d1
     days = delta.days
 except IndexError:
     days = 0
@@ -220,6 +235,14 @@ progress = weights[0] - int(goal)
 xp = cl / progress
 xps = xp * 100
 xps = int(xps)
+
+# Test print variable states.
+print(f'\n{days}')
+print(cl)
+print(tg)
+print(progress)
+print(dtg)
+print(xps)
 
 # Call image function.
 i_mage(xps)
@@ -289,7 +312,9 @@ except NameError:
     myLabel12 = Label(root, 
     text=f"Null average pounds lost per day over the last Null days.", 
     font=("Arial", 12))
-myLabel12.grid(row=7, columnspan=4, pady=10)
+myLabel12.grid(row=8, columnspan=4, pady=10)
+
+print(dail)
 
 # Display percentage of weight lost towards goal so far.
 try:
@@ -305,8 +330,13 @@ except IndexError:
         font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
 
+last = dates[-1]
+myLabel15 = Label(root, text=f"Last updated {last}", 
+    font=("Arial", 10))
+myLabel15.grid(row=6, columnspan=4, pady=5)
+
 myLabel14 = Label(root, text=f"Copyright {copyright} 2022 Jeromy Knight", 
     font=("Arial", 8))
-myLabel14.grid(row=8, columnspan=4, pady=10)
+myLabel14.grid(row=9, columnspan=4, pady=10)
 
 root.mainloop()
