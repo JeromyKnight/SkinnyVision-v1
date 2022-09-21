@@ -9,8 +9,7 @@ appName = 'SkinnyVision Weightloss Tracker'
 
 appTitle = f'{appName} {ver}'
 
-#path = "C:\Program Files\FatTrac\data/"
-path = "Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data/"
+path = "C:\Program Files\FatTrac\data/"
 copyright = u"\u00A9"
 
 root = Tk()
@@ -121,14 +120,6 @@ def update():
     xps = xp * 100
     xps = int(xps)
 
-    # Test print variable states.
-    print(f'\n{days}')
-    print(cl)
-    print(tg)
-    print(progress)
-    print(dtg)
-    print(xps)
-
     # Display current goal weight or null value if not set.
     myLabel8 = Label(root, text=f"Goal Weight", font=("Arial", 11))
     myLabel8.grid(row=1, column=3, padx=5, pady=0)
@@ -153,8 +144,6 @@ def update():
     myLabel13 = Label(root, text=f"    You are {xps}% towards your goal!    ", 
         font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
-
-    print(dail)
 
     # Call img function.
     i_mage(xps)
@@ -237,14 +226,6 @@ xp = cl / progress
 xps = xp * 100
 xps = int(xps)
 
-# Test print variable states.
-print(f'\n{days}')
-print(cl)
-print(tg)
-print(progress)
-print(dtg)
-print(xps)
-
 # Call image function.
 i_mage(xps)
 
@@ -314,8 +295,6 @@ except NameError:
     text=f"Null average pounds lost per day over the last Null days.", 
     font=("Arial", 12))
 myLabel12.grid(row=8, columnspan=4, pady=10)
-
-print(dail)
 
 # Display percentage of weight lost towards goal so far.
 try:
