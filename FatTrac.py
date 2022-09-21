@@ -4,20 +4,20 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 import datetime
 
-ver = 'v1.51'
-appName = 'FatTrac Weight Tracker 5000 Pro'
+ver = 'v1.52'
+appName = 'SkinnyVision Weightloss Tracker'
 
 appTitle = f'{appName} {ver}'
 
-path = "C:\Program Files\FatTrac\data/"
-#path = "Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data/"
+#path = "C:\Program Files\FatTrac\data/"
+path = "Y:\Jeromy\PythonProjects\FatTrack\weightloss_tracker\data/"
 copyright = u"\u00A9"
 
 root = Tk()
 root.title(appTitle)
 root.geometry("500x750")
 
-# Open image file and create list.
+# Open image db file and create list.
 images = []
 imgs = open(f'{path}images.txt', 'r')
 im = imgs.readlines()
@@ -148,7 +148,7 @@ def update():
     myLabel12 = Label(root, 
         text=f"{dail} average pounds lost per day over the last {days} days.", 
         font=("Arial", 12))
-    myLabel12.grid(row=7, columnspan=4, pady=10)
+    myLabel12.grid(row=8, columnspan=4, pady=10)
 
     myLabel13 = Label(root, text=f"    You are {xps}% towards your goal!    ", 
         font=("Arial", 14))
@@ -162,6 +162,7 @@ def update():
     # Call draw graph function.
     draw_graph()
 
+    # Display last entry date.
     last = dates[-1]
     myLabel15 = Label(root, text=f"Last updated {last}", 
     font=("Arial", 10))
@@ -330,11 +331,13 @@ except IndexError:
         font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
 
+# Display last entry date.
 last = dates[-1]
 myLabel15 = Label(root, text=f"Last updated {last}", 
     font=("Arial", 10))
 myLabel15.grid(row=6, columnspan=4, pady=5)
 
+# Footer
 myLabel14 = Label(root, text=f"Copyright {copyright} 2022 Jeromy Knight", 
     font=("Arial", 8))
 myLabel14.grid(row=9, columnspan=4, pady=10)
