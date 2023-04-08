@@ -3,18 +3,22 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 import datetime
+import csv
+import tkinter as ttk
 
-ver = 'v1.6'
+ver = 'v1.7'
 appName = 'SkinnyVision'
-
 appTitle = f'{appName} {ver}'
-
 path = "C:\Program Files\FatTrac\data/"
-copyright = u"\u00A9"
 
 root = Tk()
 root.title(appTitle)
-root.geometry("500x950")
+root.geometry("500x920")
+
+# Define lists for goals, weights, dates.
+goals = []
+dates = []
+weights = []
 
 # Open image db file and create list.
 images = []
@@ -25,9 +29,17 @@ for i in im:
     images.append(i.replace("\n", ""))
 imgs.close()
 
+def update_files(new_dl, new_current, new_goal):
+    """
+    Write new values to file and re-draw graph.
+    """
+    with open(f'{path}data.csv', mode='a', newline='') as data_file:
+        data_writer = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        data_writer.writerow([new_goal, new_dl, new_current])
+
 def i_mage(xps):
     """
-    Change picture based upon progress.
+    Change picture based' upon progress.
     """
     img = images[0]
         
@@ -47,32 +59,32 @@ def i_mage(xps):
     myImage.photo = mimage
     myImage.grid(row=1, rowspan=4, column=2)
 
-def last_60_dates(dates):
-    x = dates[-60:]
-    return x
-
 def last_60_weights(weights):
     y = weights[-60:]
     return y
 
 def draw_graph_60():
     """
-    Re-draw graph.
+    Draw graph for last 60 days.
     """
-    fig = Figure(figsize = (5, 2.5), dpi = 100)
-    y = last_60_weights(weights) # weights
-    x = last_60_dates(dates) #dates
-    plot1 = fig.add_subplot(111)
-    plot1.plot(y)
-  
-    # Create the Tkinter canvas.
-    canvas = FigureCanvasTkAgg(fig, master = root)
-    canvas.draw()
-    canvas.get_tk_widget().grid(row=7, columnspan=4)   
+    try:
+        fig = Figure(figsize = (5, 2.5), dpi = 100)
+        y = last_60_weights(weights) # weights
+        # x = last_60_dates(dates) #dates.
+        plot1 = fig.add_subplot(111)
+        plot1.plot(y)
+    
+        # Create the Tkinter canvas.
+        canvas = FigureCanvasTkAgg(fig, master = root)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=7, columnspan=4)   
+    
+    except IndexError:
+        draw_graph()
 
 def draw_graph():
     """
-    Re-draw graph.
+    Draw graph.
     """
     fig = Figure(figsize = (5, 2.5), dpi = 100)
     y = weights
@@ -85,7 +97,10 @@ def draw_graph():
     canvas.draw()
     canvas.get_tk_widget().grid(row=8, columnspan=4)
 
-def days_delta():
+def days_delta(dates):
+    """
+    Calculate the number of days since first record.
+    """
     try:
         du = dates[0]
         d1 = datetime.datetime.strptime(du, '%m/%d/%y').date() 
@@ -97,7 +112,19 @@ def days_delta():
         days = 0
     return days
 
-def days_to_goal():
+def days_to_goal(goals, weights, days):
+    """
+    Calculate the number of days to reach goal at current rate.
+    """
+    try:
+        goal = goals[-1]
+    except IndexError:
+        print('Index error goals')
+    try:
+        current = weights[-1]
+    except IndexError:
+        print('Index Error weights')
+
     try:
         cl = weights[0] - weights[-1]
         daily = cl / days
@@ -112,8 +139,10 @@ def days_to_goal():
         dtg = 0
     return dtg
 
-
-def daily_loss():
+def daily_loss(weights, days):
+    """
+    Calculate the amount of weight lost per day
+    """
     try:
         cl = weights[0] - weights[-1]
         daily = cl / days
@@ -125,7 +154,10 @@ def daily_loss():
         daily = 0
     return daily
 
-def get_xps():
+def get_xps(weights, goal):
+    """
+    Calculate percentage lost towards goal.
+    """
     cl = weights[0] - weights[-1]
     progress = weights[0] - int(goal) 
     xp = cl / progress
@@ -133,46 +165,32 @@ def get_xps():
     xps = int(xps)
     return xps
 
-def update_files(new_dl, new_current, new_goal):
-    """
-    Write new values to file and re-draw graph.
-    """
-    # Get new variables from inputs.
-    # new_dl = e.get()
-    # new_current = float(e1.get())
-    # new_goal = e2.get()
-
-    # Open data files and append with new inputs.
-    weights.append(new_current)
-    with open(f'{path}weights.txt', 'w') as wts:
-        for item in weights: 
-            wts.write("%s\n" % item)
-
-    dates.append(new_dl)
-    with open(f'{path}dates.txt', 'w') as dts:
-        for item in dates: 
-            dts.write("%s\n" % item)
-
-    goals.append(new_goal)
-    with open(f'{path}goals.txt', 'w') as gts:
-        for item in goals: 
-            gts.write("%s\n" % item)
-
 def update():
+    """
+    main function that updates data and visualizations.
+    """
     # Get new variables from inputs.
     new_dl = e.get()
     new_current = float(e1.get())
     new_goal = e2.get()
 
+    # Update csv file,
     update_files(new_dl, new_current, new_goal)
+
+    # Append lists
+    goals.append(new_goal)
+    weights.append(new_current)
+    dates.append(new_dl)
+
     # Get starting and new date and calculate total days.
-    days = days_delta()
+    days = days_delta(dates)
 
     # Calculate days to reach goal.
-    dtg = days_to_goal()
+    dtg = days_to_goal(goals, weights, days)
 
     # Re-calculate amount lost per day and percentage towards goal.
-    xps = get_xps()
+    goal = new_goal
+    xps = get_xps(weights, goal)
 
     # Display current goal weight or null value if not set.
     myLabel8 = Label(root, text=f"Goal Weight", font=("Arial", 11))
@@ -186,7 +204,9 @@ def update():
     myLabel11 = Label(root, text=f"   {dtg}   ", font="bold")
     myLabel11.grid(row=4, column=3, padx=5, pady=5)
     
-    daily = daily_loss()
+    daily = daily_loss(weights, days)
+
+    # Display the average amount lost per day and the total number of days since first record.
     try:
         dail = "{:.2f}".format(daily)
     except UnboundLocalError:
@@ -196,6 +216,7 @@ def update():
         font=("Arial", 12))
     myLabel12.grid(row=9, columnspan=4, pady=10)
 
+    # Display percentage of weight lost towards goal so far,
     myLabel13 = Label(root, text=f"    You are {xps}% towards your goal!    ", 
         font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
@@ -214,38 +235,27 @@ def update():
     myLabel15 = Label(root, text=f"Last updated {last}", 
     font=("Arial", 10))
     myLabel15.grid(row=6, columnspan=4, pady=5)
+    return(goals, weights, dates)
 
 # Get current date.
 dn = datetime.datetime.now()
 d = dn.date()
 dl = d.strftime("%x")
 
-# Open txt files and create lists and variables.
-goals = []
-gl = open(f'{path}goals.txt', 'r')
-gls = gl.readlines()
-for g in gls:
-    goals.append(g.replace("\n", ""))
-gl.close()
+# Open csv file and create lists and variables
+with open(f'{path}data.csv', 'r') as csvfile:
+    reader = csv.reader(csvfile)
+    for row in reader:
+        goals.append(row[0])
+        dates.append(row[1])
+        weights.append(row[2])
+
+goals = [eval(i) for i in goals]
 try:
-    goals = [eval(i) for i in goals]
     goal = goals[-1]
 except IndexError:
     print('Index error goals')
 
-dates = []
-dt = open(f'{path}dates.txt', 'r')
-dts = dt.readlines()
-for d in dts:
-    dates.append(d.replace("\n", ""))
-dt.close()
-
-weights = []
-weigh = open(f'{path}weights.txt', 'r')
-wt = weigh.readlines()
-for w in wt:
-    weights.append(w.replace("\n", ""))
-weigh.close()
 weights = [eval(i) for i in weights]
 try:
     current = weights[-1]
@@ -253,13 +263,13 @@ except IndexError:
     print('Index Error weights')
 
 # Get starting and ending dates and calculate total days.
-days = days_delta()
+days = days_delta(dates)
 
 # Calculate days to reach goal.
-dtg = days_to_goal()
+dtg = days_to_goal(goals, weights, days)
 
 # Calculate total weight loss, amount lost per day and percentage towards goal.
-xps = get_xps()
+xps = get_xps(weights, goal)
 
 # Call image function.
 i_mage(xps)
@@ -323,7 +333,7 @@ except NameError:
 myButton = Button(root, text='Submit', padx=10, bg="light gray", command=update)
 myButton.grid(row=4, column=1, padx=5, pady=5)
 
-daily = daily_loss()
+daily = daily_loss(weights, days)
 
 try:
     dail = "{:.2f}".format(daily)
@@ -338,7 +348,7 @@ myLabel12.grid(row=9, columnspan=4, pady=10)
 
 # Display percentage of weight lost towards goal so far.
 try:
-    xps = get_xps()
+    xps = get_xps(weights, goal)
     myLabel13 = Label(root, text=f"You are {xps}% towards your goal!", 
         font=("Arial", 14))
     myLabel13.grid(row=5, columnspan=4, pady=25)
@@ -352,10 +362,5 @@ last = dates[-1]
 myLabel15 = Label(root, text=f"Last updated {last}", 
     font=("Arial", 10))
 myLabel15.grid(row=6, columnspan=4, pady=5)
-
-# Footer
-myLabel14 = Label(root, text=f"Copyright {copyright} 2022-2023 Jeromy Knight", 
-    font=("Arial", 8))
-myLabel14.grid(row=10, columnspan=4, pady=10)
 
 root.mainloop()
